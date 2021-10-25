@@ -1,0 +1,17 @@
+.DS_Store
+build/
+vendor/
+node_modules/
+npm-debug.log
+composer.lock
+.php_cs.cache
+bootstrap/compiled.php
+app/storage/
+public/storage
+public/hot
+storage/*.key
+.env.*.php
+.env.php
+.env
+Homestead.yaml
+Homestead.json
