@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
     <title>Canada777</title>
-    <link rel="icon" type="image/x-icon" href="/frontend/userdashboard/assets/img/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="/frontend/userdashboard/assets/img/favicon.ico"/>
     <link href="/frontend/userdashboard/assets/css/loader.css" rel="stylesheet" type="text/css" />
     <script src="/frontend/userdashboard/assets/js/loader.js"></script>
 
@@ -29,6 +28,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-185160427-1"></script>
 
     <script>
+
         window.dataLayer = window.dataLayer || [];
 
         function gtag() {
@@ -38,9 +38,9 @@
         gtag('js', new Date());
 
         gtag('config', 'UA-185160427-1');
+
     </script>
 </head>
-
 <body class="alt-menu sidebar-noneoverflow">
     <!-- BEGIN LOADER -->
     <div id="load_screen">
@@ -684,8 +684,8 @@
                 "sLengthMenu": "Results :  _MENU_",
             },
             "order": [
-                [3, "desc"]
-            ],
+	    	[ 3, "desc" ]
+	    ],
             "stripeClasses": [],
             "lengthMenu": [7, 10, 20, 50],
             "pageLength": 7,
@@ -695,5 +695,4 @@
         });
     </script>
 </body>
-
 </html>

@@ -9,6 +9,7 @@
 <!DOCTYPE html>
 <html lang="en" class="notranslate" translate="no">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title id="page_title" itemprop="name">{{ settings('app_name') }} ① Online casino in Canada ᐉ Best Canadian Online Casinos 2021</title>
     <meta name="description" content="Check out our full guide about Canadian Gambling sites ✔ Canada777 Be sure that you will be offered ONLY the Best Online Casino in Canada ✔ Reviews from Industry Experts!" />

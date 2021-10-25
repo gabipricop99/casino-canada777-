@@ -535,7 +535,6 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
 
         public function gigadatListener(\Illuminate\Http\Request $request)
         {
-            dd($request->post(), $request->get());
             Log::channel('payment')->info('***Gigadat Listener***', ['request' => $request]);
             $transaction = $request->post('transactionId');
             $status = $request->get('status');
@@ -546,28 +545,24 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             $phone = $request->post('mobile');
             $ip = $request->post('userIp');
 
-           /* $user = \VanguardLTE\User::where('id', $userId)->first();
+            $user = \VanguardLTE\User::where('id', $userId)->first();
             if (!$user) {
                 return response()->json(['error' => true, 'msg' => trans('app.wrong_user')], 200);
             }
             $curTransaction = \VanguardLTE\Transaction::where(['user_id'=> $userId, 'transaction' => $transaction, 'status' => -1])->first();
             if (!$curTransaction) {
                 return response()->json(['error' => true, 'msg' => trans('app.wrong_transaction')], 200);
-            }*/
-
+            }
             if ($status == 'STATUS_INITED') {
             }
             else if ($status == 'STATUS_PENDING') {
             }
             else if ($status == 'STATUS_SUCCESS') {
-                dd($type);
-                
                 if ($type == 'CPI') {
                     // $deposit_count = \VanguardLTE\Transaction::leftjoin('users', 'transactions.user_id', '=', 'users.id')->where(['users.visitor_id'=>$user->visitor_id, 'type'=>'in', 'transactions.status' => '1'])->count();
                     $deposit_count = \VanguardLTE\Transaction::where(['user_id'=>$user->id, 'type'=>'in'])->count();
                     $user->increment('balance', $amount);
                     $user->increment('count_balance', $amount);
-                    dd($deposit_count, $user);
                     switch ($deposit_count) {
                         case 1:
                             $welcomepackages = \VanguardLTE\WelcomePackage::leftJoin('games', function ($join)

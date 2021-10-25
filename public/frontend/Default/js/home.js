@@ -2,7 +2,7 @@ var page_hot = 0;
 var page_new = 0;
 var page_game = 0;
 
-$(document).ready(function () {
+$(document).ready(function() {
     $(window).scroll(function () {
         if ($(window).scrollTop() == $(document).height() - $(window).height()) {
             fn_loadmore('GAME', $("#currentListTitleInput").val());
@@ -14,10 +14,10 @@ fn_loadmore = (type, category) => {
     if (type == "HOT") {
         page_hot++;
     }
-    else if (type == "NEW") {
+    else if(type == "NEW"){
         page_new++;
     }
-    else if (type == "GAME") {
+    else if(type == "GAME"){
         page_game++;
     }
     $.ajax({
@@ -30,9 +30,8 @@ fn_loadmore = (type, category) => {
             type: type,
             category: category
         },
-        dataType: "JSON",
-        success: (data) => {
-            console.log(data);
+        dataType:"JSON",
+        success:(data)=>{
             var games = data.games;
             var apigames = data.api_games;
             var section_game = "";

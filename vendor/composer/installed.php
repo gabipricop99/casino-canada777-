@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '62f408dbf316dcbc0f260e7da20341f19f610f11',
+        'reference' => 'a35099d79c1d95984aa403dbb229c8a181fdbd29',
         'name' => 'loshmis/vanguard',
         'dev' => true,
     ),
@@ -541,7 +541,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '62f408dbf316dcbc0f260e7da20341f19f610f11',
+            'reference' => 'a35099d79c1d95984aa403dbb229c8a181fdbd29',
             'dev_requirement' => false,
         ),
         'malkusch/lock' => array(
@@ -868,8 +868,8 @@
         'psr/log-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '1.0.0 || 2.0.0 || 3.0.0',
-                1 => '1.0|2.0',
+                0 => '1.0|2.0',
+                1 => '1.0.0 || 2.0.0 || 3.0.0',
             ),
         ),
         'psr/simple-cache' => array(
