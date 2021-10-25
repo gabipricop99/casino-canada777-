@@ -59,11 +59,6 @@
         <div class="tablemenu d-md-block">
             <ul id="horizontal-list">
 
-
-                <?php
-                dd($categories);
-                ?>
-
                 <?php if( settings('use_all_categories') ): ?>
                 <li class="menulist ">
                     <a href="<?php echo e(route('frontend.game.list.category', 'all')); ?>" class="<?php if($currentSliderNum != -1 && $currentSliderNum == 'all'): ?> active <?php endif; ?>">

@@ -38,7 +38,7 @@
                 <img src="https://canada777.com/frontend/Page/image/logo.png" />
             </a>
             <a href="{{ url('/') }}" class="d-md-none d-flex">
-                <img src="https://canada777.com/frontend/Page/image/mobile-logo.png" />
+                <img src="https://canada777.com/slides/media/d20f5-canada777-25-09-2021.png" />
             </a>
         </div>
         <div class="account-header-menu d-flex">
@@ -60,10 +60,10 @@
                 <a href="javascript:fn_profile_load('freespin');">
                     <span><img src="https://canada777.com/frontend/Page/image/notification.png" /></span>
                 </a>
-            </div>    
+            </div>
             <div class="account-header-menu-item d-lg-block">
                 <!-- <a href="javascript:fn_deposit('{{Auth::check()}}')"> -->
-                
+
                 <!-- redesign deposit with color like casino.com  -->
                 <a href="javascript:fn_profile_load('deposit')">
                     <img src="https://canada777.com/frontend/Page/image/deposit-icon.png" />
@@ -82,13 +82,14 @@
                 <a href="javascript:fn_side_menu()" data-ol-has-click-handler>
                     <img src="https://canada777.com/frontend/Page/image/signin-icon.png" />
                     <span>
-{{--                        <div>{{Auth::user()->username}}</div>--}}
-                        <div>balance</div>
-                        <div style="line-height: 1">$ <b>{{number_format((float)Auth::user()->balance, 2, '.', '')}}</b></div>
-                    </span>
-                </a>
-            </div>
-            @endif
+                        {{-- <div>{{Auth::user()->username}}
+            </div>--}}
+            <div>balance</div>
+            <div style="line-height: 1">$ <b>{{number_format((float)Auth::user()->balance, 2, '.', '')}}</b></div>
+            </span>
+            </a>
         </div>
+        @endif
+    </div>
     </div>
 </header>
