@@ -2,7 +2,7 @@
 function playNow() {
     showSignup();
 }
-$(document).ready(function() {
+$(document).ready(function () {
     var deposit_crypto_currency = '';
     var crypto_currency_from = '';
     var deposit_amount;
@@ -138,16 +138,16 @@ $(document).ready(function() {
         });
     }
 
-    fn_deposit=(auth)=>{
-        if(!auth){
+    fn_deposit = (auth) => {
+        if (!auth) {
             /* avoid user have different account to get bonus with fingerprintjs */
-            if(!localStorage.getItem("visitorId")){
+            if (!localStorage.getItem("visitorId")) {
                 initFingerprintJS();
             }
             $("#login_visitorId").val(localStorage.getItem("visitorId"));
             /* --- */
             showSignin();
-        }else{
+        } else {
             $("#deposit-modal").modal({
                 fadeDuration: 300,
                 escapeClose: false,
@@ -156,23 +156,23 @@ $(document).ready(function() {
         }
     };
     /* modify deposit like canada777.com */
-    fn_price=(value, e)=>{
+    fn_price = (value, e) => {
         deposit_amount = value;
         $("#deposit_amount").val(deposit_amount);
         $("input[name='deposit_amount']").val(value);
         $("span#deposit_currency").text($("#deposit_currency option:selected").text());
 
         if (!$(e).hasClass("modal-selected-deposit-currency")) {
-            $(e).addClass("modal-selected-deposit-currency") ;
+            $(e).addClass("modal-selected-deposit-currency");
 
             $('.modal-content-deposit-amount').map((index, elet) => {
-                if(elet !== e){
-                    if($(elet).hasClass('modal-selected-deposit-currency')){
-                        $(elet).removeClass("modal-selected-deposit-currency") ;
+                if (elet !== e) {
+                    if ($(elet).hasClass('modal-selected-deposit-currency')) {
+                        $(elet).removeClass("modal-selected-deposit-currency");
                     }
                 }
             })
-        }else {
+        } else {
 
         }
     };
@@ -184,47 +184,47 @@ $(document).ready(function() {
         $("span#crypto_deposit_currency").text($("#deposit_currency option:selected").text());
 
         if (!$(e).hasClass("modal-selected-deposit-currency")) {
-            $(e).addClass("modal-selected-deposit-currency") ;
+            $(e).addClass("modal-selected-deposit-currency");
 
             $('.modal-content-deposit-amount').map((index, elet) => {
-                if(elet !== e){
-                    if($(elet).hasClass('modal-selected-deposit-currency')){
-                        $(elet).removeClass("modal-selected-deposit-currency") ;
+                if (elet !== e) {
+                    if ($(elet).hasClass('modal-selected-deposit-currency')) {
+                        $(elet).removeClass("modal-selected-deposit-currency");
                     }
                 }
             })
-            if($('#payment_method').val() == 'crypto' && deposit_crypto_currency != ''){
+            if ($('#payment_method').val() == 'crypto' && deposit_crypto_currency != '') {
                 crypto_get_address(deposit_crypto_currency, value, crypto_currency_from, "0");
             }
-        }else {
+        } else {
 
         }
     }
-    fn_selected_currency=(value, e)=>{
+    fn_selected_currency = (value, e) => {
         $("#sel_currency").val(value);
         if (!$(e).hasClass("modal-selected-deposit-currency")) {
-            $(e).addClass("modal-selected-deposit-currency") ;
+            $(e).addClass("modal-selected-deposit-currency");
 
             $('.modal-content-currency-type').map((index, elet) => {
-                if(elet !== e){
-                    if($(elet).hasClass('modal-selected-deposit-currency')){
-                        $(elet).removeClass("modal-selected-deposit-currency") ;
+                if (elet !== e) {
+                    if ($(elet).hasClass('modal-selected-deposit-currency')) {
+                        $(elet).removeClass("modal-selected-deposit-currency");
                     }
                 }
             });
-        }else {
+        } else {
         }
     };
 
     fn_payment_method_select = (e, type = 'interac', crypto_currency = '') => {
         if (!$(e).hasClass("payment-method-button-element-selected")) {
-            if(type == 'crypto'){
+            if (type == 'crypto') {
                 deposit_crypto_currency = crypto_currency;
 
                 var currency_to = $("#deposit_currency option:selected").text();
                 crypto_currency_from = $("#deposit_currency option:selected").text();
                 $("#currency_to").val(currency_to);
-                if($("#crypto_deposit_amount").val() == ""){
+                if ($("#crypto_deposit_amount").val() == "") {
                     crypto_deposit_amount = 25;
                     $("#crypto_deposit_amount").val(crypto_deposit_amount);
                     $("input[name='crypto_deposit_amount']").val(crypto_deposit_amount);
@@ -232,16 +232,16 @@ $(document).ready(function() {
                 }
                 $('.deposit-crypto-content').css('display', 'block');
                 $('.deposit-interac-content').css('display', 'none');
-                if($("#sel_currency").val() == ""){
+                if ($("#sel_currency").val() == "") {
                     option_for_crypto(true);
                     var get_address_flag = "1";
                     $.ajax({
-                        url:"/cryptocurrencies_list",
-                        type : "POST",
+                        url: "/cryptocurrencies_list",
+                        type: "POST",
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
-                        dataType:"JSON",
+                        dataType: "JSON",
                         data: {
                             currency: crypto_currency,
                             crypto_deposit_amount: crypto_deposit_amount,
@@ -412,8 +412,11 @@ $(document).ready(function() {
     }
 
     fn_withdraw_submit = () => {
-        if ($("#amount").val() && $("#withdrawemail").val() && $("#phone").val()) {
-            if (/^(1)?\d{10}$/.test($("#phone").val())) {
+        if ($("#amount").val() < 50) {
+            // alert("your amount have to over than $50");
+        }
+        if ($("#amount").val() && $("#withdrawemail").val() && $("#tphone").val()) {
+            if (/^(1)?\d{10}$/.test($("#tphone").val())) {
                 $.ajax({
                     url: $("#withdraw-form").attr('action'),
                     type: $("#withdraw-form").attr('method'),
@@ -422,6 +425,7 @@ $(document).ready(function() {
                     },
                     data: $("#withdraw-form").serialize(),
                     success: (data) => {
+                        console.log(data);
                         if (data.error) {
                             $('.error-body').show("slow", function () {
                                 $(".error-body").removeClass("alert-success");

@@ -68,6 +68,7 @@ namespace VanguardLTE\Http\Controllers\Web\Backend
                 ->where('transactions.id', $id)
                 ->select('transactions.*', 'users.username', 'users.first_name', 'users.balance', 'users.count_balance', 'users.count_bonus')
                 ->first();
+            
             if ($approve == null || $approve->status != 0){
                 return redirect()->route('backend.withdraw.list');
             }
@@ -95,7 +96,7 @@ namespace VanguardLTE\Http\Controllers\Web\Backend
                         "userIp"=> $approve->ip,
                         "currency"=> "CAD",
                         "language"=> "en",
-                        "amount"=> $approve->summ,
+                        "amount"=> -1 * intval($approve->summ),
                         "type"=> "ETO",
                         "hosted"=> "false", 
                         "sandbox" => "false",

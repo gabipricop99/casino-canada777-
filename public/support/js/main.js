@@ -1279,7 +1279,7 @@
 
         payload(key = false, value = false) {
             let payload = this.get('payload');
-            if (key !== false && value !== false) {   
+            if (key !== false && value !== false) {
                 payload[key] = value;
                 this.set('payload', payload);
             } else if (key !== false) {
@@ -3052,7 +3052,7 @@
                                 SBF.storageTime('timetable');
                             }
                         }, 5000);
-                }      
+                }
             }
         },
 

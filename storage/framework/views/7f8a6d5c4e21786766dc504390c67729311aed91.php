@@ -1,5 +1,5 @@
-@extends('frontend.Default.user.profile')
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="navigation-sibling">
     <div class="layout-column layout-column-1">
         <div class="portlet-dropzone portlet-column-content fn-portlet-container column-1">
@@ -11,11 +11,11 @@
                     <article data-web-content-id="Withdraw">
                         <p>
                         <div class="fn-replacer js-replacer change-password-replacer">
-                            <form id="withdraw-form" class="form form_name_cashier-withdraw" action="{{route('frontend.withdraw.payment')}}" method="GET" target="_blank">
+                            <form id="withdraw-form" class="form form_name_cashier-withdraw" action="<?php echo e(route('frontend.withdraw.payment')); ?>" method="GET" target="_blank">
                                 <input type="hidden" name="withdraw_crypto_type" id="withdraw_crypto_type" value="" />
                                 <div class="form-messages fn-form-messages"></div>
                                 <div class="form__description">
-                                    <!-- <p>Real balance {{$realBalance}}   Bonus balance {{$bonusBalance}}   Withdrawable {{$realBalance + $bonusBalance}}</p> -->
+                                    <!-- <p>Real balance <?php echo e($realBalance); ?>   Bonus balance <?php echo e($bonusBalance); ?>   Withdrawable <?php echo e($realBalance + $bonusBalance); ?></p> -->
                                 </div>
                                 <label class="mb-2 text-dark">All Withdrawal Methods</label>
                                 <!-- <div class="row" style="margin-bottom: 3em;">
@@ -91,4 +91,5 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('frontend.Default.user.profile', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\00work\06casino\canada777\resources\views/frontend/Default/user/withdraw.blade.php ENDPATH**/ ?>
