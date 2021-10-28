@@ -223,7 +223,8 @@ label {
     height: calc(100vh - 60px);
     top: 60px;
     left: 0;
-    width: 100%;
+    width: inherit;
+    /* width: 100%; */
     padding: 0;
     background-color: #000000;
     overflow: auto;
