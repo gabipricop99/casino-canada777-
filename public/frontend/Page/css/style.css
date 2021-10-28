@@ -259,6 +259,10 @@ label {
     align-items: center;
 }
 
+#header-msg span:last-child {
+    display: none;
+}
+
 @media only screen and (max-width: 400px) {
     .header-content {
         justify-content: flex-end;
@@ -1237,6 +1241,26 @@ footer .footer-menu .footer-menu-content {
     .header-content {
         background: black;
     }
+    .account-header-menu-item a span {
+        margin-left: 0px;
+    }
+    #header-msg {
+        display: grid;
+    }
+    #header-msg span {
+        margin: 0 auto;
+        display: block !important;
+    }
+    #header-deposit {
+        display: grid;
+    }
+    #header-deposit img {
+        margin: 0 auto;
+    }
+    #header-user img {
+        display: none;
+    }
+
     #category-section {
         flex-flow: column;
         border-top: 0;

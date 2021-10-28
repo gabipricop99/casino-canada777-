@@ -2,7 +2,7 @@
 $detect = new \Detection\MobileDetect();
 ?>
 <div id="deposit-modal" class="deposit-modal modal  ">
-	<!-- <div class="deposit-modal-content">
+    <!-- <div class="deposit-modal-content">
 		<form id="deposit-form" class="modal-form container" action="{{route('frontend.deposit.payment')}}" method="GET" target="_blank">
 			<h2 class="text-center mb-5 text-light">Deposit</h2>
             <input type="hidden" name="payment_type" id="payment_type" value="1"/>
@@ -66,8 +66,8 @@ $detect = new \Detection\MobileDetect();
     <div class="cashout-modal-content">
         <form id="cashout-form" class="modal-form container" action="{{route('frontend.cashout.payment')}}" method="GET" target="_blank">
             <h2 class="text-center mb-5 text-light">Cash Out</h2>
-            <input type="hidden" name="payment_type" id="payment_type" value="2"/>
-			<label class="mb-2 text-light" for="cashout_amount">Amount</label>
+            <input type="hidden" name="payment_type" id="payment_type" value="2" />
+            <label class="mb-2 text-light" for="cashout_amount">Amount</label>
             <input type="text" id="cashout_amount" name="cashout_amount" />
             <label class="form-group text-light p-1 m-0" for="cashout_email">Email</label>
             <input type="text" id="cashout_email" name="cashout_email" />
@@ -84,25 +84,27 @@ $detect = new \Detection\MobileDetect();
     <div class="profile-modal-modal-content"></div>
     @if(!$detect->isMobile() && !$detect->isTablet())
     <div class="profile-modal-modal-footer">
-            <div class="profile-modal-footer-first col-md-2"></div>
-            <div class="profile-modal-footer-second c0l-md-11">
-                <div class="begambleaware"><img src="https://canada777.com/frontend/Page/image/other_logo/begambleaware.png" alt=""/></div>
-                <div class="plus"><img src="https://canada777.com/frontend/Page/image/other_logo/18-plus.png" alt=""/></div>
-                <div class="thawte"><img src="https://canada777.com/frontend/Page/image/other_logo/thawte.png" alt=""/></div>
-                <div class="gt"><img src="https://canada777.com/frontend/Page/image/other_logo/gt.png" alt=""/></div>
-                <div class="gbga-icon"><img src="https://canada777.com/frontend/Page/image/other_logo/gbga_icon@2x.png" alt=""/></div>
-                <div class="gbga-icon"><img src="https://canada777.com/frontend/Page/image/other_logo/gamanon.png" alt=""/></div>
-                <div class="ibas-logo-login"><img src="https://canada777.com/frontend/Page/image/other_logo/ibas-logo-login.png" alt=""/></div>
-                <div class="gamcare"><img src="https://canada777.com/frontend/Page/image/other_logo/gamcare.png" alt=""/></div>
-                <div class="gamblingcommisions"><img src="https://canada777.com/frontend/Page/image/other_logo/gamblingcommisions.png" alt=""/></div>
-            </div>
+        <div class="profile-modal-footer-first col-md-2"></div>
+        <div class="profile-modal-footer-second c0l-md-11">
+            <div class="begambleaware"><img src="https://canada777.com/frontend/Page/image/other_logo/begambleaware.png" alt="" /></div>
+            <div class="plus"><img src="https://canada777.com/frontend/Page/image/other_logo/18-plus.png" alt="" /></div>
+            <div class="thawte"><img src="https://canada777.com/frontend/Page/image/other_logo/thawte.png" alt="" /></div>
+            <div class="gt"><img src="https://canada777.com/frontend/Page/image/other_logo/gt.png" alt="" /></div>
+            <div class="gbga-icon"><img src="https://canada777.com/frontend/Page/image/other_logo/gbga_icon@2x.png" alt="" /></div>
+            <div class="gbga-icon"><img src="https://canada777.com/frontend/Page/image/other_logo/gamanon.png" alt="" /></div>
+            <div class="ibas-logo-login"><img src="https://canada777.com/frontend/Page/image/other_logo/ibas-logo-login.png" alt="" /></div>
+            <div class="gamcare"><img src="https://canada777.com/frontend/Page/image/other_logo/gamcare.png" alt="" /></div>
+            <div class="gamblingcommisions"><img src="https://canada777.com/frontend/Page/image/other_logo/gamblingcommisions.png" alt="" /></div>
+        </div>
     </div>
     @endif
 </div>
 <div id="side-modal" class="captain-up-menu right-menu slide-menu fn-slide-menu-wrapper opened" style="display:none">
     @if (Auth::check())
     <div class="slide-menu__wrap fn-menu-wrap">
-        <div class="slide-menu__header"><span class="main-header__menu fn-close-menu" onClick="$('.close-modal').click();"></span><div class="slide-menu-logo-desktop"></div></div>
+        <div class="slide-menu__header"><span class="main-header__menu fn-close-menu" onClick="$('.close-modal').click();"></span>
+            <div class="slide-menu-logo-desktop"></div>
+        </div>
         <div class="right-menu-balance">
             <div class="balances">
                 <div class="top-balance">
@@ -127,7 +129,7 @@ $detect = new \Detection\MobileDetect();
                 <li class="slide-menu__point"><a href="javascript:fn_profile_load('bonus');" class="slide-menu__point-link">Bonus History</a></li>
                 <li class="slide-menu__point"><a href="javascript:fn_profile_load('freespin');" class="slide-menu__point-link">Free Spins History</a></li>
                 <li class="slide-menu__point"><a href="{{route('frontend.support.ticket')}}" class="slide-menu__point-link">Support</a></li>
-                <li class="slide-menu__point"><a style="width:100%; background:#FFFF00;" href="{{route('frontend.auth.logout')}}" class="btn btn-md">sign out</a></li>
+                <li class="slide-menu__point"><a href="{{route('frontend.auth.logout')}}" class="slide-menu__point-link">sign out</a></li>
             </ul>
         </div>
     </div>

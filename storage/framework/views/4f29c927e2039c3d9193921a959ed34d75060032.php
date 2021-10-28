@@ -57,16 +57,17 @@
             </div>
             <?php else: ?>
             <div class="account-header-menu-item d-lg-block">
-                <a href="javascript:fn_profile_load('freespin');">
+                <a id="header-msg" href="javascript:fn_profile_load('freespin');">
                     <span><img src="https://canada777.com/frontend/Page/image/notification.png" /></span>
+                    <span>MESSAGE</span>
                 </a>
             </div>
             <div class="account-header-menu-item d-lg-block">
                 <!-- <a href="javascript:fn_deposit('<?php echo e(Auth::check()); ?>')"> -->
 
                 <!-- redesign deposit with color like casino.com  -->
-                <a href="javascript:fn_profile_load('deposit')">
-                    <img src="https://canada777.com/frontend/Page/image/deposit-icon.png" />
+                <a id="header-deposit" href="javascript:fn_profile_load('deposit')">
+                    <img cla src="https://canada777.com/frontend/Page/image/deposit-icon.png" />
                     <span>deposit</span>
                 </a>
             </div>
@@ -79,8 +80,8 @@
                     </span>
                 </a> -->
                 <input type="hidden" id="user_balance_amount" value="<?php echo e(number_format((float)Auth::user()->balance, 2, '.', '')); ?>">
-                <a href="javascript:fn_side_menu()" data-ol-has-click-handler>
-                    <img src="https://canada777.com/frontend/Page/image/signin-icon.png" />
+                <a id="header-user" href="javascript:fn_side_menu()" data-ol-has-click-handler>
+                    <img id="header-user" src="https://canada777.com/frontend/Page/image/signin-icon.png" />
                     <span>
                         
             <div>balance</div>
