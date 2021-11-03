@@ -1,16 +1,19 @@
 <?php
-namespace VanguardLTE\Http\Controllers\Web\Frontend
-{
+
+namespace VanguardLTE\Http\Controllers\Web\Frontend {
+
     use malkusch\lock\mutex\FlockMutex;
+
     class GamesController extends \VanguardLTE\Http\Controllers\Controller
     {
         public function index(\Illuminate\Http\Request $request, $category1 = '', $category2 = '')
         {
-            if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasRole('admin')){
+            if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasRole('admin')) {
                 return redirect()->route('backend.dashboard');
             }
 
-/*            $checked = new \VanguardLTE\Lib\LicenseDK();
+
+            /*            $checked = new \VanguardLTE\Lib\LicenseDK();
             $license_notifications_array = $checked->aplVerifyLicenseDK(null, 0);
             if( $license_notifications_array['notification_case'] != 'notification_license_ok' )
             {
@@ -62,20 +65,17 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             ]);
 
             $frontend = 'Default';
-            if( $shop_id && $shop )
-            {
+            if ($shop_id && $shop) {
                 $frontend = $shop->frontend;
             }
-            if( $category1 == '' )
-            {
-                if( $currentCategory = $request->cookie('currentCategory') )
-                {
+
+            if ($category1 == '') {
+                if ($currentCategory = $request->cookie('currentCategory')) {
                     $category = \VanguardLTE\Category::where([
                         'href' => $currentCategory,
                         'shop_id' => $shop_id
                     ])->first();
-                    if( $category )
-                    {
+                    if ($category) {
                         $category1 = $category->href;
                         return redirect()->route('frontend.game.list.category', [
                             'category1' => $category1,
@@ -83,8 +83,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                         ]);
                     }
                 }
-                if( settings('use_all_categories') )
-                {
+                if (settings('use_all_categories')) {
                     return redirect('/home');
                     /*return redirect()->route('frontend.game.list.category', [
                         'category1' => 'all',
@@ -95,59 +94,49 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     'parent' => 0,
                     'shop_id' => $shop_id
                 ])->orderBy('position')->first();
-                if( $category )
-                {
+                if ($category) {
                     $category1 = $category->href;
                     return redirect()->route('frontend.game.list.category', $category1);
                 }
             }
             \Illuminate\Support\Facades\Cookie::queue('currentCategory', $category1, 2678400);
-            if( $category1 != '' )
-            {
+            if ($category1 != '') {
                 $cat1 = \VanguardLTE\Category::where([
                     'href' => $category1,
                     'shop_id' => $shop_id
                 ])->first();
-                if( !$cat1 && $category1 != 'all' )
-                {
+
+                if (!$cat1 && $category1 != 'all') {
                     abort(404);
                 }
-                if( $category2 != '' )
-                {
+                if ($category2 != '') {
                     $cat2 = \VanguardLTE\Category::where([
                         'href' => $category2,
                         'parent' => $cat1->id,
                         'shop_id' => $shop_id
                     ])->first();
-                    if( !$cat2 )
-                    {
+                    if (!$cat2) {
                         abort(404);
                     }
                     $categories[] = $cat2->id;
-                }
-                else if( $category1 != 'all' )
-                {
+                } else if ($category1 != 'all') {
                     $categories = \VanguardLTE\Category::where([
                         'parent' => $cat1->id,
                         'shop_id' => $shop_id
                     ])->pluck('id')->toArray();
                     $categories[] = $cat1->id;
-                }
-                else
-                {
+                } else {
                     $categories = \VanguardLTE\Category::where([
                         'parent' => 0,
                         'shop_id' => $shop_id
                     ])->pluck('id')->toArray();
                 }
-                if( $frontend == 'Amatic' )
-                {
+                if ($frontend == 'Amatic') {
                     $Amatic = \VanguardLTE\Category::where([
                         'title' => 'Amatic',
                         'shop_id' => $shop_id
                     ])->first();
-                    if( $Amatic )
-                    {
+                    if ($Amatic) {
                         $categories = \VanguardLTE\Category::where([
                             'parent' => $Amatic->id,
                             'shop_id' => $shop_id
@@ -155,14 +144,12 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                         $categories[] = $Amatic->id;
                     }
                 }
-                if( $frontend == 'NetEnt' )
-                {
+                if ($frontend == 'NetEnt') {
                     $Amatic = \VanguardLTE\Category::where([
                         'title' => 'NetEnt',
                         'shop_id' => $shop_id
                     ])->first();
-                    if( $Amatic )
-                    {
+                    if ($Amatic) {
                         $categories = \VanguardLTE\Category::where([
                             'parent' => $Amatic->id,
                             'shop_id' => $shop_id
@@ -171,35 +158,28 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     }
                 }
                 $game_ids = \VanguardLTE\GameCategory::whereIn('category_id', $categories)->groupBy('game_id')->pluck('game_id')->toArray();
-
-                if( count($game_ids) > 0 )
-                {
+                if (count($game_ids) > 0) {
                     $games = $games->whereIn('id', $game_ids);
-                }
-                else
-                {
+                } else {
                     $games = $games->where('id', 0);
                 }
             }
 
-            $newgames = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
-                ->leftJoin('categories','categories.id','=','game_categories.category_id')
+            $newgames = \VanguardLTE\Game::leftJoin('game_categories', 'game_categories.game_id', '=', 'games.id')
+                ->leftJoin('categories', 'categories.id', '=', 'game_categories.category_id')
                 ->orderBy('games.new_order', 'ASC')
-                ->where('categories.Title','New')
+                ->where('categories.Title', 'New')
                 ->where('games.new_order', "!=", NULL);
 
-            $hotgames = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
-                ->leftJoin('categories','categories.id','=','game_categories.category_id')
+            $hotgames = \VanguardLTE\Game::leftJoin('game_categories', 'game_categories.game_id', '=', 'games.id')
+                ->leftJoin('categories', 'categories.id', '=', 'game_categories.category_id')
                 ->orderBy('games.hot_order', 'ASC')
-                ->where('categories.Title','Hot')
+                ->where('categories.Title', 'Hot')
                 ->where('games.hot_order', "!=", NULL);
-
-
 
             $detect = new \Detection\MobileDetect();
             $devices = [];
-            if( $detect->isMobile() || $detect->isTablet() )
-            {
+            if ($detect->isMobile() || $detect->isTablet()) {
                 $games = $games->whereIn('device', [
                     0,
                     2
@@ -216,9 +196,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     0,
                     2
                 ];
-            }
-            else
-            {
+            } else {
                 $games = $games->whereIn('device', [
                     1,
                     2
@@ -236,29 +214,29 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     2
                 ];
             }
-            if($search_game){
-                if($category1 == 'hot'){
-                    $games = $games->where('name','like','%'.$search_game.'%')->where('games.hot_order', "!=", NULL)->orderBy('games.hot_order', 'ASC')->take(10)->get();
-                }else if($category1 == 'new'){
-                    $games = $games->where('name','like','%'.$search_game.'%')->where('games.new_order', "!=", NULL)->orderBy('games.new_order', 'ASC')->take(10)->get();
-                }else{
-                    $games = $games->where('name','like','%'.$search_game.'%')->orderBy('games.order', 'ASC')->take(10)->get();
+            if ($search_game) {
+                if ($category1 == 'hot') {
+                    $games = $games->where('name', 'like', '%' . $search_game . '%')->where('games.hot_order', "!=", NULL)->orderBy('games.hot_order', 'ASC')->take(10)->get();
+                } else if ($category1 == 'new') {
+                    $games = $games->where('name', 'like', '%' . $search_game . '%')->where('games.new_order', "!=", NULL)->orderBy('games.new_order', 'ASC')->take(10)->get();
+                } else {
+                    $games = $games->where('name', 'like', '%' . $search_game . '%')->orderBy('games.order', 'ASC')->take(10)->get();
                 }
-            }else{
-                if($category1 == 'hot'){
+            } else {
+                if ($category1 == 'hot') {
                     $games_count = $games->where('games.hot_order', "!=", NULL)->count();
                     $games = $games->where('games.hot_order', "!=", NULL)->orderBy('games.hot_order', 'ASC')->take(10)->get();
-                }else if($category1 == 'new'){
+                } else if ($category1 == 'new') {
                     $games_count = $games->where('games.new_order', "!=", NULL)->count();
                     $games = $games->where('games.new_order', "!=", NULL)->orderBy('games.new_order', 'ASC')->take(10)->get();
-                }else{
+                } else {
                     $games_count = $games->count();
                     $games = $games->orderBy('games.order', 'ASC')->take(10)->get();
                 }
 
-                if($games_count <= 20) {
+                if ($games_count <= 20) {
                     $games_loadmore = "nomore";
-                }else {
+                } else {
                     $games_loadmore = "more";
                 }
             }
@@ -269,22 +247,17 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             $categories = false;
             $currentSliderNum = -1;
             $currentListTitle = "";
-            if( $games )
-            {
+            if ($games) {
                 $cat_ids = \VanguardLTE\GameCategory::whereIn('game_id', \VanguardLTE\Game::where([
                     'view' => 1,
                     'shop_id' => $shop_id
                 ])->pluck('id'))->groupBy('category_id')->pluck('category_id');
-                if( count($cat_ids) )
-                {
+                if (count($cat_ids)) {
 
-                    $categories = \VanguardLTE\Category::whereIn('id', $cat_ids)->orwhere(['href'=> 'table', 'type' => 1])->where('shop_id', $shop_id)->orderBy('position','ASC')->get();
-                    if( $category1 != '' )
-                    {
-                        foreach( $categories as $index => $cat )
-                        {
-                            if( $cat->href == $category1 )
-                            {
+                    $categories = \VanguardLTE\Category::whereIn('id', $cat_ids)->orwhere(['href' => 'table', 'type' => 1])->where('shop_id', $shop_id)->orderBy('position', 'ASC')->get();
+                    if ($category1 != '') {
+                        foreach ($categories as $index => $cat) {
+                            if ($cat->href == $category1) {
                                 $currentSliderNum = $cat->href;
                                 $currentListTitle = $cat->title;
                                 break;
@@ -300,24 +273,24 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             $cur_api_games = [];
             $apigames_count = \VanguardLTE\ApiGames::where('created_at', $cur_date)->count();
 
-            if( $apigames_count == 0) {
+            if ($apigames_count == 0) {
                 $game_gamehub_api = new \VanguardLTE\Lib\games_Api;
 
-                if($shop_id == 0){
+                if ($shop_id == 0) {
                     $games_gamehub = $game_gamehub_api->getGameList(['currency' => 'USD']);
-                }else{
+                } else {
                     $games_gamehub = $game_gamehub_api->getGameList(['currency' => $shop->currency]);
                 }
 
-			    if( $games_gamehub && $games_gamehub['error'] == 0 && count($games_gamehub['response']) > 0 ){
+                if ($games_gamehub && $games_gamehub['error'] == 0 && count($games_gamehub['response']) > 0) {
 
                     foreach ($games_gamehub['response'] as $key => $val) {
                         $exist_game = \VanguardLTE\ApiGames::where('game_id', (int)$val['id'])->first();
                         $api_label = '';
-                        if($val['new'] == 1){
+                        if ($val['new'] == 1) {
                             $api_label = 'new';
                         }
-                        if(!$exist_game){
+                        if (!$exist_game) {
                             $model = \VanguardLTE\ApiGames::create(
                                 [
                                     'game_id' => $val['id'],
@@ -337,99 +310,99 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                                     'order' => $val['position']
                                 ]
                             );
-                        }else {
+                        } else {
                             $exist_game->update(['created_at' => $cur_date, 'updated_at' => $cur_date]);
                         }
                     }
-                }else {
+                } else {
                     $up = \VanguardLTE\ApiGames::where('created_at', '!=', $cur_date)->update(['created_at' => $cur_date, 'updated_at' => $cur_date]);
                 }
-            }else {
+            } else {
                 $up = \VanguardLTE\ApiGames::where('created_at', '!=', $cur_date)->update(['created_at' => $cur_date, 'updated_at' => $cur_date]);
             }
 
-            if( $detect->isMobile() || $detect->isTablet() ) {
-                if($category1 != 'all'){
-                    if($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology'){
-                        if($category1 == 'livecasino'){
+            if ($detect->isMobile() || $detect->isTablet()) {
+                if ($category1 != 'all') {
+                    if ($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology') {
+                        if ($category1 == 'livecasino') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'LIKE', '%live%casino%')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'jackpot') {
-                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%'.$category1.'%')->where('mobile', 1)->orderBy('order', 'ASC');
+                        } else if ($category1 == 'jackpot') {
+                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%' . $category1 . '%')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'table'){
+                        } else if ($category1 == 'table') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'table-games')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'hot'){
+                        } else if ($category1 == 'hot') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'hot')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'new'){
+                        } else if ($category1 == 'new') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'new')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'pragmatic'){
+                        } else if ($category1 == 'pragmatic') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('category', 'like', '%pragmatic%')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else {
+                        } else {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_ct_gaming')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
                         }
-                    }else {
-                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_'.$category1)->where('mobile', 1)->orderBy('order', 'ASC');
+                    } else {
+                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_' . $category1)->where('mobile', 1)->orderBy('order', 'ASC');
                         $apigames_count = $apigamesbycategory->count();
                         $api_games = $apigamesbycategory->take(10)->get();
                     }
-                }else {
+                } else {
                     $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('mobile', 1)->orderBy('order', 'ASC');
                     $apigames_count = $apigamesbycategory->count();
                     $api_games = $apigamesbycategory->take(10)->get();
                 }
                 $api_newgames = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 1)->orderBy('order', 'ASC')->get();
                 $api_hotgames = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 1)->orderBy('order', 'ASC')->get();
-            }else {
-                if($category1 != 'all'){
-                    if($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology'){
-                        if($category1 == 'livecasino'){
+            } else {
+                if ($category1 != 'all') {
+                    if ($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology') {
+                        if ($category1 == 'livecasino') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'LIKE', '%live%casino%')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'jackpot') {
-                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%'.$category1.'%')->where('mobile', 0)->orderBy('order', 'ASC');
+                        } else if ($category1 == 'jackpot') {
+                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%' . $category1 . '%')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'table'){
+                        } else if ($category1 == 'table') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'table-games')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'hot'){
+                        } else if ($category1 == 'hot') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'hot')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'new'){
+                        } else if ($category1 == 'new') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'new')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'pragmatic'){
+                        } else if ($category1 == 'pragmatic') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('category', 'like', '%pragmatic%')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else {
+                        } else {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_ct_gaming')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
                         }
-                    }else {
-                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_'.$category1)->where('mobile', 0)->orderBy('order', 'ASC');
+                    } else {
+                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_' . $category1)->where('mobile', 0)->orderBy('order', 'ASC');
                         $apigames_count = $apigamesbycategory->count();
                         $api_games = $apigamesbycategory->take(10)->get();
                     }
-                }else {
+                } else {
                     $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('mobile', 0)->orderBy('order', 'ASC');
                     $apigames_count = $apigamesbycategory->count();
                     $api_games = $apigamesbycategory->take(10)->get();
@@ -438,35 +411,34 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 $api_hotgames = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 0)->orderBy('order', 'ASC')->get();
             }
 
-            if($apigames_count <= 20){
+            if ($apigames_count <= 20) {
                 $apigames_loadmore = "nomore";
-            }else {
+            } else {
                 $apigames_loadmore = "more";
             }
             // if( settings('user_all_categories') && $category1 == 'all' )
-            if( $category1 == 'all' )
-            {
+            if ($category1 == 'all') {
                 $currentSliderNum = 'all';
                 $currentListTitle = 'All';
             }
 
-            $countrys =  \VanguardLTE\Country::orderBy('ranking','ASC')
-                                            ->orderBy('country','ASC')->get();
-            $currencys =  \VanguardLTE\Currency::orderBy('ranking','ASC')->get();
+            $countrys =  \VanguardLTE\Country::orderBy('ranking', 'ASC')
+                ->orderBy('country', 'ASC')->get();
+            $currencys =  \VanguardLTE\Currency::orderBy('ranking', 'ASC')->get();
             $provinces = \VanguardLTE\Province::where('country', 'CND')
-                                            ->orderBy('name','ASC')->get();
+                ->orderBy('name', 'ASC')->get();
             $states = \VanguardLTE\Province::where('country', 'USA')
-                                            ->orderBy('name','ASC')->get();
+                ->orderBy('name', 'ASC')->get();
             $realBalance = 0;
             $bonusBalance = 0;
 
             $time_elapsed_secs = microtime(true) - $start;
-            // dd($time_elapsed_secs);
 
-            return view('frontend.' . $frontend . '.games.list', compact('games', 'api_games', 'hotgames', 'newgames','category1', 'cat1', 'categories', 'currentSliderNum', 'currentListTitle','title', 'body', 'keywords', 'description', 'jpgs', 'devices', 'countrys', 'currencys','search_game','login_result','register_result','forgotpassword_result','resetpassword_result', 'games_loadmore', 'apigames_loadmore', 'current_shop_id', 'provinces', 'states', 'api_newgames', 'api_hotgames'));
+            return view('frontend.' . $frontend . '.games.list', compact('games', 'api_games', 'hotgames', 'newgames', 'category1', 'cat1', 'categories', 'currentSliderNum', 'currentListTitle', 'title', 'body', 'keywords', 'description', 'jpgs', 'devices', 'countrys', 'currencys', 'search_game', 'login_result', 'register_result', 'forgotpassword_result', 'resetpassword_result', 'games_loadmore', 'apigames_loadmore', 'current_shop_id', 'provinces', 'states', 'api_newgames', 'api_hotgames'));
         }
 
-        public function loadmore(\Illuminate\Http\Request $request){
+        public function loadmore(\Illuminate\Http\Request $request)
+        {
             $games_loadmore = "";
             $newgames_loadmore = "";
             $hotgames_loadmore = "";
@@ -484,133 +456,129 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             $shop_id = (\Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->shop_id : 0);
             $shop = \VanguardLTE\Shop::find($shop_id);
 
-            $games = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
-                                      ->leftJoin('categories','categories.id','=','game_categories.category_id')
-                                      ->orderBy('games.order', 'ASC')
-                                      ->where('games.shop_id', $shop_id);
-
+            $games = \VanguardLTE\Game::leftJoin('game_categories', 'game_categories.game_id', '=', 'games.id')
+                ->leftJoin('categories', 'categories.id', '=', 'game_categories.category_id')
+                ->orderBy('games.order', 'ASC')
+                ->where('games.shop_id', $shop_id);
             $detect = new \Detection\MobileDetect();
             $devices = [];
 
-            if($gametype == "HOT"){
+            if ($gametype == "HOT") {
                 $page = $request->pagehot;
                 $hotgames_count = $games->where('categories.title', 'Hot')->count();
-                $games = $games->where('categories.title', 'Hot')->skip($page*10)->take(10);
+                $games = $games->where('categories.title', 'Hot')->skip($page * 10)->take(10);
 
-                if( $hotgames_count <= ($page + 1) * 20 ) {
+                if ($hotgames_count <= ($page + 1) * 20) {
                     $games_loadmore = "nomore";
-                }else{
+                } else {
                     $games_loadmore = "more";
                 }
                 $api_games = [];
-            }
-            else if($gametype == "NEW"){
+            } else if ($gametype == "NEW") {
                 $page = $request->pagenew;
                 $newgames_count = $games->where('categories.title', 'New')->count();
-                $games = $games->where('categories.title','New')->skip($page*10)->take(10);
-                if( $newgames_count <= ($page + 1) * 20 ) {
+                $games = $games->where('categories.title', 'New')->skip($page * 10)->take(10);
+                if ($newgames_count <= ($page + 1) * 20) {
                     $games_loadmore = "nomore";
-                }else{
+                } else {
                     $games_loadmore = "more";
                 }
                 $api_games = [];
-            }
-            else if($gametype == "GAME"){
+            } else if ($gametype == "GAME") {
                 $page = $request->pagegame;
 
-                if($category == "All" || $category == "all"){
-                    $games_count = $games->groupBy('games.id')->count();
-                    $games = $games->groupBy('games.id')->skip($page*10)->take(10);
-                    if( $detect->isMobile() || $detect->isTablet() ) {
-                        $api_games = \VanguardLTE\ApiGames::where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                if ($category == "All" || $category == "all") {
+                    $games_count = $games->count();
+                    // dd($games_count);
+                    $games = $games->groupBy('games.id')->skip($page * 10)->take(10);
+                    if ($detect->isMobile() || $detect->isTablet()) {
+                        $api_games = \VanguardLTE\ApiGames::where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                         $apigames_count = \VanguardLTE\ApiGames::where('mobile', 1)->orderBy('order', 'ASC')->count();
-                    }else {
-                        $api_games = \VanguardLTE\ApiGames::where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                    } else {
+                        $api_games = \VanguardLTE\ApiGames::where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                         $apigames_count = \VanguardLTE\ApiGames::where('mobile', 0)->orderBy('order', 'ASC')->count();
                     }
-                }else{
-                    if( $category == 'table'){
+                } else {
+                    if ($category == 'table') {
                         $games_count = $games->where('categories.href', $category)->orwhere('href', 'card')->orwhere('href', 'roulette')->count();
-                        $games = $games->where('categories.href', $category)->orwhere('href', 'card')->orwhere('href', 'roulette')->orderBy('order', 'ASC')->skip($page*10)->take(10);
-                    }else {
+                        $games = $games->where('categories.href', $category)->orwhere('href', 'card')->orwhere('href', 'roulette')->orderBy('order', 'ASC')->skip($page * 10)->take(10);
+                    } else {
                         $games_count = $games->where('categories.href', $category)->count();
-                        $games = $games->where('categories.href', $category)->orderBy('order', 'ASC')->skip($page*10)->take(10);
+                        $games = $games->where('categories.href', $category)->orderBy('order', 'ASC')->skip($page * 10)->take(10);
                     }
-                    if( $detect->isMobile() || $detect->isTablet() ) {
-                        if($category == 'livecasino' || $category == 'jackpot' || $category == 'table' || strtolower($category) == 'hot' || strtolower($category) == 'new' || strtolower($category) == 'pragmatic' || strtolower($category) == 'casino-technology'){
-                            if($category == 'livecasino'){
-                                $api_games = \VanguardLTE\ApiGames::where('type', 'LIKE', '%live%casino%')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                    if ($detect->isMobile() || $detect->isTablet()) {
+                        if ($category == 'livecasino' || $category == 'jackpot' || $category == 'table' || strtolower($category) == 'hot' || strtolower($category) == 'new' || strtolower($category) == 'pragmatic' || strtolower($category) == 'casino-technology') {
+                            if ($category == 'livecasino') {
+                                $api_games = \VanguardLTE\ApiGames::where('type', 'LIKE', '%live%casino%')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('type', 'LIKE', '%live%casino%')->where('mobile', 1)->orderBy('order', 'ASC')->count();
-                            }else if($category == 'jackpot') {
-                                $api_games = \VanguardLTE\ApiGames::where('name', 'LIKE', '%'.strtolower($category).'%')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
-                                $apigames_count = \VanguardLTE\ApiGames::where('name', 'LIKE', '%'.strtolower($category).'%')->where('mobile', 1)->orderBy('order', 'ASC')->count();
-                            }else if($category == 'table') {
-                                $api_games = \VanguardLTE\ApiGames::where('type', 'table-games')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if ($category == 'jackpot') {
+                                $api_games = \VanguardLTE\ApiGames::where('name', 'LIKE', '%' . strtolower($category) . '%')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
+                                $apigames_count = \VanguardLTE\ApiGames::where('name', 'LIKE', '%' . strtolower($category) . '%')->where('mobile', 1)->orderBy('order', 'ASC')->count();
+                            } else if ($category == 'table') {
+                                $api_games = \VanguardLTE\ApiGames::where('type', 'table-games')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('name', 'table-games')->where('mobile', 1)->orderBy('order', 'ASC')->count();
-                            }else if(strtolower($category) == 'hot') {
-                                $api_games = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if (strtolower($category) == 'hot') {
+                                $api_games = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 1)->orderBy('order', 'ASC')->count();
-                            }else if(strtolower($category) == 'new') {
-                                $api_games = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if (strtolower($category) == 'new') {
+                                $api_games = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 1)->orderBy('order', 'ASC')->count();
-                            }else if(strtolower($category) == 'pragmatic'){
-                                $api_games = \VanguardLTE\ApiGames::where('category', 'like', '%pragmatic%')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if (strtolower($category) == 'pragmatic') {
+                                $api_games = \VanguardLTE\ApiGames::where('category', 'like', '%pragmatic%')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('category', 'like', '%pragmatic%')->where('mobile', 1)->orderBy('order', 'ASC')->count();
-                            }else {
-                                $api_games = \VanguardLTE\ApiGames::where('subcategory', '_ct_gaming')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else {
+                                $api_games = \VanguardLTE\ApiGames::where('subcategory', '_ct_gaming')->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('subcategory', '_ct_gaming')->where('mobile', 1)->orderBy('order', 'ASC')->count();
                             }
-                        }else {
-                            $api_games = \VanguardLTE\ApiGames::where('subcategory', '_'.strtolower($category))->where('mobile', 1)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
-                            $apigames_count = \VanguardLTE\ApiGames::where('subcategory', '_'.strtolower($category))->where('mobile', 1)->orderBy('order', 'ASC')->count();
+                        } else {
+                            $api_games = \VanguardLTE\ApiGames::where('subcategory', '_' . strtolower($category))->where('mobile', 1)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
+                            $apigames_count = \VanguardLTE\ApiGames::where('subcategory', '_' . strtolower($category))->where('mobile', 1)->orderBy('order', 'ASC')->count();
                         }
-
-                    }else {
-                        if($category == 'livecasino' || $category == 'jackpot' || $category == 'table' || strtolower($category) == 'hot' || strtolower($category) == 'new' || strtolower($category) == 'pragmatic' || strtolower($category) == 'casino-technology'){
-                            if($category == 'livecasino'){
-                                $api_games = \VanguardLTE\ApiGames::where('type', 'LIKE', '%live%casino%')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                    } else {
+                        if ($category == 'livecasino' || $category == 'jackpot' || $category == 'table' || strtolower($category) == 'hot' || strtolower($category) == 'new' || strtolower($category) == 'pragmatic' || strtolower($category) == 'casino-technology') {
+                            if ($category == 'livecasino') {
+                                $api_games = \VanguardLTE\ApiGames::where('type', 'LIKE', '%live%casino%')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('type', 'LIKE', '%live%casino%')->where('mobile', 0)->orderBy('order', 'ASC')->count();
-                            }else if($category == 'jackpot') {
-                                $api_games = \VanguardLTE\ApiGames::where('name', 'LIKE', '%'.strtolower($category).'%')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
-                                $apigames_count = \VanguardLTE\ApiGames::where('name', 'LIKE', '%'.strtolower($category).'%')->where('mobile', 0)->orderBy('order', 'ASC')->count();
-                            }else if($category == 'table'){
-                                $api_games = \VanguardLTE\ApiGames::where('type', 'table-games')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if ($category == 'jackpot') {
+                                $api_games = \VanguardLTE\ApiGames::where('name', 'LIKE', '%' . strtolower($category) . '%')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
+                                $apigames_count = \VanguardLTE\ApiGames::where('name', 'LIKE', '%' . strtolower($category) . '%')->where('mobile', 0)->orderBy('order', 'ASC')->count();
+                            } else if ($category == 'table') {
+                                $api_games = \VanguardLTE\ApiGames::where('type', 'table-games')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('type', 'table-games')->where('mobile', 0)->orderBy('order', 'ASC')->count();
-                            }else if(strtolower($category) == 'hot') {
-                                $api_games = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if (strtolower($category) == 'hot') {
+                                $api_games = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 0)->orderBy('order', 'ASC')->count();
-                            }else if(strtolower($category) == 'new') {
-                                $api_games = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if (strtolower($category) == 'new') {
+                                $api_games = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 0)->orderBy('order', 'ASC')->count();
-                            }else if(strtolower($category) == 'pragmatic'){
-                                $api_games = \VanguardLTE\ApiGames::where('category', 'like', '%pragmatic%')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else if (strtolower($category) == 'pragmatic') {
+                                $api_games = \VanguardLTE\ApiGames::where('category', 'like', '%pragmatic%')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('category', 'like', '%pragmatic%')->where('mobile', 0)->orderBy('order', 'ASC')->count();
-                            }else {
-                                $api_games = \VanguardLTE\ApiGames::where('subcategory', '_ct_gaming')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
+                            } else {
+                                $api_games = \VanguardLTE\ApiGames::where('subcategory', '_ct_gaming')->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
                                 $apigames_count = \VanguardLTE\ApiGames::where('subcategory', '_ct_gaming')->where('mobile', 0)->orderBy('order', 'ASC')->count();
                             }
-                        }else {
-                            $api_games = \VanguardLTE\ApiGames::where('subcategory', '_'.strtolower($category))->where('mobile', 0)->orderBy('order', 'ASC')->skip($page*10)->take(10)->get();
-                            $apigames_count = \VanguardLTE\ApiGames::where('subcategory', '_'.strtolower($category))->where('mobile', 0)->orderBy('order', 'ASC')->count();
+                        } else {
+                            $api_games = \VanguardLTE\ApiGames::where('subcategory', '_' . strtolower($category))->where('mobile', 0)->orderBy('order', 'ASC')->skip($page * 10)->take(10)->get();
+                            $apigames_count = \VanguardLTE\ApiGames::where('subcategory', '_' . strtolower($category))->where('mobile', 0)->orderBy('order', 'ASC')->count();
                         }
-
                     }
                 }
-                if( $games_count <= ( $page + 1 ) * 20 ) {
-                    $games_loadmore ="nomore";
-                }else{
-                    $games_loadmore ="more";
+
+                if ($games_count <= ($page + 1) * 10) {
+                    $games_loadmore = "nomore";
+                } else {
+                    $games_loadmore = "more";
                 }
 
-                if( $apigames_count < ($page + 1) * 20){
+                if ($apigames_count < ($page + 1) * 10) {
                     $apigames_loadmore = "nomore";
-                }else {
+                } else {
                     $apigames_loadmore = "more";
                 }
             }
 
-            if( $detect->isMobile() || $detect->isTablet() )
-            {
+            if ($detect->isMobile() || $detect->isTablet()) {
                 $games = $games->whereIn('device', [
                     0,
                     2
@@ -619,9 +587,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     0,
                     2
                 ];
-            }
-            else
-            {
+            } else {
                 $games = $games->whereIn('device', [
                     1,
                     2
@@ -633,7 +599,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             }
             $games = $games->get();
 
-	        return response(json_encode([
+            return response(json_encode([
                 'type' => $gametype,
                 'api_games' => $api_games,
                 'current_category' => strtolower($category),
@@ -651,10 +617,10 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             ])->cookie($cookie);
         }
 
-        public function searchgame(\Illuminate\Http\Request $request){
+        public function searchgame(\Illuminate\Http\Request $request)
+        {
             $shop_id = (\Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->shop_id : 0);
-            if( $shop_id )
-            {
+            if ($shop_id) {
                 $shop = \VanguardLTE\Shop::find($shop_id);
             }
             $query = (isset($request->keyword) ? $request->keyword : '');
@@ -666,15 +632,12 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             });
 
             $detect = new \Detection\MobileDetect();
-            if( $detect->isMobile() || $detect->isTablet() )
-            {
+            if ($detect->isMobile() || $detect->isTablet()) {
                 $games = $games->whereIn('device', [
                     0,
                     2
                 ]);
-            }
-            else
-            {
+            } else {
                 $games = $games->whereIn('device', [
                     1,
                     2
@@ -686,12 +649,9 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             /* search api games */
             $apigames = \VanguardLTE\ApiGames::where('name', 'like', '%' . $query . '%');
             $detect = new \Detection\MobileDetect();
-            if( $detect->isMobile() || $detect->isTablet() )
-            {
+            if ($detect->isMobile() || $detect->isTablet()) {
                 $apigames = $apigames->where('mobile', 1);
-            }
-            else
-            {
+            } else {
                 $apigames = $apigames->where('mobile',  0);
             }
             $apigames = $apigames->orderBy('name', 'ASC')->get();
@@ -704,21 +664,17 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
 
         public function search(\Illuminate\Http\Request $request)
         {
-            if( \Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->hasRole('user') )
-            {
+            if (\Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->hasRole('user')) {
                 return redirect()->route('backend.dashboard');
             }
-            if( !\Illuminate\Support\Facades\Auth::check() )
-            {
+            if (!\Illuminate\Support\Facades\Auth::check()) {
                 return redirect()->route('frontend.auth.login');
             }
             $shop_id = (\Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->shop_id : 0);
             $frontend = 'Default';
-            if( $shop_id )
-            {
+            if ($shop_id) {
                 $shop = \VanguardLTE\Shop::find($shop_id);
-                if( $shop )
-                {
+                if ($shop) {
                     $frontend = $shop->frontend;
                 }
             }
@@ -734,26 +690,20 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 'shop_id' => $shop_id
             ])->pluck('id')->toArray();
             $game_ids = \VanguardLTE\GameCategory::whereIn('category_id', $categories)->groupBy('game_id')->pluck('game_id')->toArray();
-            if( count($game_ids) > 0 )
-            {
+            if (count($game_ids) > 0) {
                 $games = $games->whereIn('id', $game_ids);
-            }
-            else
-            {
+            } else {
                 $games = $games->where('id', 0);
             }
 
             $games = $games->where('name', 'like', '%' . $query . '%');
             $detect = new \Detection\MobileDetect();
-            if( $detect->isMobile() || $detect->isTablet() )
-            {
+            if ($detect->isMobile() || $detect->isTablet()) {
                 $games = $games->whereIn('device', [
                     0,
                     2
                 ]);
-            }
-            else
-            {
+            } else {
                 $games = $games->whereIn('device', [
                     1,
                     2
@@ -767,32 +717,30 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
         {
             $game = $request->game;
             $prego = 0;
-            if (isset($request->prego)){
+            if (isset($request->prego)) {
                 $prego = $request->prego;
             }
             return view('frontend.Default.games.init', compact('game', 'prego'));
         }
-        public function go(\Illuminate\Http\Request $request, $game, $prego='')
+        public function go(\Illuminate\Http\Request $request, $game, $prego = '')
         {
-            if($prego == 'realgo'){
-                if( \Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->hasRole('user') )
-                {
+            if ($prego == 'realgo') {
+                if (\Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->hasRole('user')) {
                     return redirect()->route('backend.dashboard');
                 }
-                if( !\Illuminate\Support\Facades\Auth::check() )
-                {
+                if (!\Illuminate\Support\Facades\Auth::check()) {
                     return redirect()->route('frontend.game.list');
                 }
                 $userId = \Illuminate\Support\Facades\Auth::id();
                 $shopId = \Illuminate\Support\Facades\Auth::user()->shop_id;
                 $request->session()->put('freeUserID', 0);
                 $gameMode = "go";
-            }else if($prego == 'prego') {
+            } else if ($prego == 'prego') {
                 $freeShopID = 1;
                 $freeUser = \VanguardLTE\User::where('shop_id', $freeShopID)->orderBy('last_login', 'asc')->first();
-                if(!isset($freeUser)){
+                if (!isset($freeUser)) {
                     $userId = 1;
-                }else{
+                } else {
                     $freeUser->update([
                         'balance' => 10000,
                         'count_balance' => 10000,
@@ -814,40 +762,36 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 'shop_id' => $shopId
             ]);
             $is_mobile = false;
-            if( $detect->isMobile() || $detect->isTablet() )
-            {
+            if ($detect->isMobile() || $detect->isTablet()) {
                 $is_mobile = true;
                 $game = $game->whereIn('device', [
                     0,
                     2
                 ]);
-            }
-            else
-            {
+            } else {
                 $game = $game->whereIn('device', [
                     1,
                     2
                 ]);
             }
             $game = $game->first();
-            if( !$game )
-            {
+            if (!$game) {
                 return redirect()->route('frontend.game.list');
             }
-            if( !$game->view )
-            {
+            if (!$game->view) {
                 return redirect()->route('frontend.game.list');
             }
             $is_api = false;
             return view('frontend.games.list.' . $game->name, compact('slot', 'game', 'is_api', 'is_mobile'));
         }
-        public function apigame(\Illuminate\Http\Request $request, $game, $type){
+        public function apigame(\Illuminate\Http\Request $request, $game, $type)
+        {
             $play_for_fun = 0;
             $frontend = 'Default';
             $detect = new \Detection\MobileDetect();
             $games = new \VanguardLTE\Lib\games_Api;
 
-            if($type == "api_go"){
+            if ($type == "api_go") {
                 $play_for_fun = 0;
                 if (!\Illuminate\Support\Facades\Auth::check()) {
                     return redirect()->route('frontend.auth.login');
@@ -856,15 +800,15 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 $users = \Auth::user();
                 $Shop = \VanguardLTE\Shop::find($users->shop_id);
 
-                if( $Shop === null){
-                    $currency = 'USD' ;
-                }else {
+                if ($Shop === null) {
+                    $currency = 'USD';
+                } else {
                     $currency = $Shop->currency;
                 }
                 $datetime = Date("Y-m-d-H-m-i");
                 $tionApi = \VanguardLTE\UsersRegistrationApi::where('user_id', $users->id)->first();
                 if ($tionApi === null) {
-                    $password = password_hash($users->username.$datetime, PASSWORD_DEFAULT);
+                    $password = password_hash($users->username . $datetime, PASSWORD_DEFAULT);
 
                     $tionApi = new \VanguardLTE\UsersRegistrationApi();
                     $tionApi->user_id = $users->id;
@@ -912,7 +856,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 } else {
                     return redirect()->route('frontend.game.list');
                 }
-            }else {
+            } else {
                 $play_for_fun = 1;
                 $play = $games->getGameDemo(
                     [
@@ -930,24 +874,23 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     return redirect()->route('frontend.game.list');
                 }
             }
-
         }
         public function callback_gamehub(\Illuminate\Http\Request $request)
-		{
+        {
             // $mutex = new FlockMutex(fopen(base_path()."/public/gamehub_lock.txt", "r"));
             $mutex = new FlockMutex(fopen(__FILE__, "r"));
             header('Content-Type: application/json');
 
             $data = $_GET;
-            $mutex->synchronized(function() use ($data) {
+            $mutex->synchronized(function () use ($data) {
                 $salt = "g34AQqFyq";
                 if (!isset($_GET['action'])) {
                     exit();
                 }
                 $key = $data['key'];
                 unset($data['key']);
-                $hash = sha1($salt.http_build_query($data));
-                if( $key != $hash ){
+                $hash = sha1($salt . http_build_query($data));
+                if ($key != $hash) {
                     echo json_encode(
                         [
                             'status' => 500,
@@ -960,7 +903,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 //Number of credits
                 if ($_GET['action'] == 'balance') {
 
-                    if(!isset($_GET['username'])|| $_GET['username'] == null ||  $_GET['username'] == ""){
+                    if (!isset($_GET['username']) || $_GET['username'] == null ||  $_GET['username'] == "") {
                         echo json_encode(
                             [
                                 "status" => 500,
@@ -1003,7 +946,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 //Withdrawing credits
                 if ($_GET['action'] == 'debit') {
 
-                    if(!isset($_GET['gamesession_id']) || !isset($_GET['game_id']) || !isset($_GET['username']) || !isset($_GET['transaction_id']) || !isset($_GET['amount']) || $_GET['gamesession_id'] == null || $_GET['game_id'] == null || $_GET['username'] == null || $_GET['transaction_id'] == null || $_GET['amount'] == null || $_GET['gamesession_id'] == "" || $_GET['game_id'] == "" || $_GET['username'] == "" || $_GET['transaction_id'] == "" || $_GET['amount'] == "" ){
+                    if (!isset($_GET['gamesession_id']) || !isset($_GET['game_id']) || !isset($_GET['username']) || !isset($_GET['transaction_id']) || !isset($_GET['amount']) || $_GET['gamesession_id'] == null || $_GET['game_id'] == null || $_GET['username'] == null || $_GET['transaction_id'] == null || $_GET['amount'] == null || $_GET['gamesession_id'] == "" || $_GET['game_id'] == "" || $_GET['username'] == "" || $_GET['transaction_id'] == "" || $_GET['amount'] == "") {
                         echo json_encode(
                             [
                                 "status" => 500,
@@ -1049,7 +992,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                         return true;
                     }
 
-                    if($_GET['amount'] < 0 ) {
+                    if ($_GET['amount'] < 0) {
                         echo json_encode(
                             [
                                 "status" => 500,
@@ -1125,7 +1068,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 //Accrual of loans
                 if ($_GET['action'] == 'credit') {
 
-                    if(!isset($_GET['gamesession_id']) || !isset($_GET['game_id']) || !isset($_GET['username']) || !isset($_GET['transaction_id']) || !isset($_GET['amount']) || $_GET['gamesession_id'] == null || $_GET['game_id'] == null || $_GET['username'] == null || $_GET['transaction_id'] == null || $_GET['amount'] == null || $_GET['gamesession_id'] == "" || $_GET['game_id'] == "" || $_GET['username'] == "" || $_GET['transaction_id'] == "" || $_GET['amount'] == "" ){
+                    if (!isset($_GET['gamesession_id']) || !isset($_GET['game_id']) || !isset($_GET['username']) || !isset($_GET['transaction_id']) || !isset($_GET['amount']) || $_GET['gamesession_id'] == null || $_GET['game_id'] == null || $_GET['username'] == null || $_GET['transaction_id'] == null || $_GET['amount'] == null || $_GET['gamesession_id'] == "" || $_GET['game_id'] == "" || $_GET['username'] == "" || $_GET['transaction_id'] == "" || $_GET['amount'] == "") {
                         echo json_encode(
                             [
                                 "status" => 500,
@@ -1170,7 +1113,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                         );
                         return true;
                     }
-                    if($_GET['amount'] < 0 ) {
+                    if ($_GET['amount'] < 0) {
                         echo json_encode(
                             [
                                 "status" => 500,
@@ -1221,7 +1164,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
 
                 if ($_GET['action'] == 'rollback') {
 
-                    if(!isset($_GET['transaction_id']) || !isset($_GET['username']) || $_GET['transaction_id'] == null || $_GET['username'] == null || $_GET['transaction_id'] == "" || $_GET['username'] == "" ){
+                    if (!isset($_GET['transaction_id']) || !isset($_GET['username']) || $_GET['transaction_id'] == null || $_GET['username'] == null || $_GET['transaction_id'] == "" || $_GET['username'] == "") {
                         echo json_encode(
                             [
                                 "status" => 500,
@@ -1256,7 +1199,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     }
                     $amount = $tionApi->amount;
 
-                    if($tionApi->status == "ROLLBACKED"){
+                    if ($tionApi->status == "ROLLBACKED") {
                         echo json_encode(
                             [
                                 'status' => 200,
@@ -1267,7 +1210,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                         return true;
                     }
 
-                    if($tionApi->action == "debit"){
+                    if ($tionApi->action == "debit") {
 
                         $tionApi->update(
                             [
@@ -1287,8 +1230,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                             ]
                         );
                         return true;
-
-                    }else if($tionApi->action == "credit") {
+                    } else if ($tionApi->action == "credit") {
                         $tionApi->update(
                             [
                                 'status' => "ROLLBACKED"
@@ -1314,33 +1256,31 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
         public function server(\Illuminate\Http\Request $request, $game)
         {
             $GLOBALS['rgrc'] = config('app.salt');
-            if($request->session()->get('freeUserID', 0) == 0){
-                if( \Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->hasRole('user') )
-                {
+            if ($request->session()->get('freeUserID', 0) == 0) {
+                if (\Illuminate\Support\Facades\Auth::check() && !\Illuminate\Support\Facades\Auth::user()->hasRole('user')) {
                     echo '{"responseEvent":"error","responseType":"start","serverResponse":"Wrong User"}';
                     exit();
                 }
-                if( !\Illuminate\Support\Facades\Auth::check() )
-                {
+                if (!\Illuminate\Support\Facades\Auth::check()) {
                 }
                 $userId = \Illuminate\Support\Facades\Auth::id();
-            }else{
+            } else {
                 $userId = $request->session()->get('freeUserID', 0);
             }
-//            echo '{"responseEvent":"error","responseType":"error","userid":'.$userId.'}';
+            //            echo '{"responseEvent":"error","responseType":"error","userid":'.$userId.'}';
             $object = '\VanguardLTE\Games\\' . $game . '\Server';
             $server = new $object();
             echo $server->get($request, $game, $userId);
         }
-        public function check_freemodal(\Illuminate\Http\Request $request) {
+        public function check_freemodal(\Illuminate\Http\Request $request)
+        {
             $status = 0;
-            if(!\Illuminate\Support\Facades\Auth::check() )
-            {
+            if (!\Illuminate\Support\Facades\Auth::check()) {
                 $visiterId = $request->post('visiterId');
                 $user_count = \VanguardLTE\UserFun::where('visitor_id', $visiterId)->count();
-                if($user_count == 0){
+                if ($user_count == 0) {
                     $user_count = \VanguardLTE\User::where('visitor_id', $visiterId)->count();
-                    if($user_count == 0){
+                    if ($user_count == 0) {
                         $status =  1;
                     }
                 }
@@ -1350,16 +1290,16 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 'status' => $status
             ]));
         }
-        public function check_email(\Illuminate\Http\Request $request) {
+        public function check_email(\Illuminate\Http\Request $request)
+        {
             $status = 0;
-            if(!\Illuminate\Support\Facades\Auth::check() )
-            {
+            if (!\Illuminate\Support\Facades\Auth::check()) {
                 $email = $request->post('email');
                 $visiterId = $request->post('visiterId');
                 $user_count = \VanguardLTE\UserFun::where('email', $email)->count();
-                if($user_count > 0){
+                if ($user_count > 0) {
                     $status = 1;
-                }else{
+                } else {
                     $newRecord = new \VanguardLTE\UserFun;
                     $newRecord->email = $email;
                     $newRecord->visitor_id = $visiterId;
@@ -1369,9 +1309,9 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     $automizy_api = new \VanguardLTE\Lib\automizy_Api;
                     $lists = $automizy_api->getAllLists();
                     $smart_lists = $lists['smartLists'];
-                    if(count($lists['smartLists']) > 0){
-                        foreach($smart_lists as $val) {
-                            if(str_contains(strtolower($val['name']), 'all')){
+                    if (count($lists['smartLists']) > 0) {
+                        foreach ($smart_lists as $val) {
+                            if (str_contains(strtolower($val['name']), 'all')) {
                                 $list_id = $val['id'];
                                 $automizy_api->addContactsByList($data, $list_id);
                             }
@@ -1384,7 +1324,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 'status' => $status
             ]));
         }
-/*        public function security()
+        /*        public function security()
         {
             if( config('LicenseDK.APL_INCLUDE_KEY_CONFIG') != 'wi9qydosuimsnls5zoe5q298evkhim0ughx1w16qybs2fhlcpn' )
             {
@@ -1404,7 +1344,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
         {
             $category1 = "all";
             $category2 = "";
-            if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasRole('admin')){
+            if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->hasRole('admin')) {
                 return redirect()->route('backend.dashboard');
             }
 
@@ -1461,55 +1401,53 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 'shop_id' => $shop_id
             ]);
 
-            $newgames = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
-                ->leftJoin('categories','categories.id','=','game_categories.category_id')
+            dd("fgggsdfsfs");
+            exit(0);
+            $newgames = \VanguardLTE\Game::leftJoin('game_categories', 'game_categories.game_id', '=', 'games.id')
+                ->leftJoin('categories', 'categories.id', '=', 'game_categories.category_id')
                 ->orderBy('games.new_order', 'ASC')
-                ->where('categories.Title','New')
+                ->where('categories.Title', 'New')
                 ->where('games.new_order', "!=", NULL);
-//            $newgames_count = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
-//                ->leftJoin('categories','categories.id','=','game_categories.category_id')
-//                ->orderBy('games.new_order', 'ASC')
-//                ->where('categories.Title','New')
-//                ->where('games.new_order', "!=", NULL)
-//                ->count();
+            //            $newgames_count = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
+            //                ->leftJoin('categories','categories.id','=','game_categories.category_id')
+            //                ->orderBy('games.new_order', 'ASC')
+            //                ->where('categories.Title','New')
+            //                ->where('games.new_order', "!=", NULL)
+            //                ->count();
 
-//            if($newgames_count <= 20) {
-//                $newgames_loadmore = "nomore";
-//            }else{
-//                $newgames_loadmore = "more";
-//            }
-            $hotgames = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
-                ->leftJoin('categories','categories.id','=','game_categories.category_id')
+            //            if($newgames_count <= 20) {
+            //                $newgames_loadmore = "nomore";
+            //            }else{
+            //                $newgames_loadmore = "more";
+            //            }
+            $hotgames = \VanguardLTE\Game::leftJoin('game_categories', 'game_categories.game_id', '=', 'games.id')
+                ->leftJoin('categories', 'categories.id', '=', 'game_categories.category_id')
                 ->orderBy('games.hot_order', 'ASC')
-                ->where('categories.Title','Hot')
+                ->where('categories.Title', 'Hot')
                 ->where('games.hot_order', "!=", NULL);
-//            $hotgames_count = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
-//                ->leftJoin('categories','categories.id','=','game_categories.category_id')
-//                ->orderBy('games.hot_order', 'ASC')
-//                ->where('categories.Title','Hot')
-//                ->where('games.hot_order', "!=", NULL)
-//                ->count();
-//            if($hotgames_count <= 20) {
-//                $hotgames_loadmore = "nomore";
-//            }else{
-//                $hotgames_loadmore = "more";
-//            }
+            //            $hotgames_count = \VanguardLTE\Game::leftJoin('game_categories','game_categories.game_id','=','games.id')
+            //                ->leftJoin('categories','categories.id','=','game_categories.category_id')
+            //                ->orderBy('games.hot_order', 'ASC')
+            //                ->where('categories.Title','Hot')
+            //                ->where('games.hot_order', "!=", NULL)
+            //                ->count();
+            //            if($hotgames_count <= 20) {
+            //                $hotgames_loadmore = "nomore";
+            //            }else{
+            //                $hotgames_loadmore = "more";
+            //            }
 
             $frontend = 'Default';
-            if( $shop_id && $shop )
-            {
+            if ($shop_id && $shop) {
                 $frontend = $shop->frontend;
             }
-            if( $category1 == '' )
-            {
-                if( $currentCategory = $request->cookie('currentCategory') )
-                {
+            if ($category1 == '') {
+                if ($currentCategory = $request->cookie('currentCategory')) {
                     $category = \VanguardLTE\Category::where([
                         'href' => $currentCategory,
                         'shop_id' => $shop_id
                     ])->first();
-                    if( $category )
-                    {
+                    if ($category) {
                         $category1 = $category->href;
                         return redirect()->route('frontend.game.list.category', [
                             'category1' => $category1,
@@ -1517,8 +1455,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                         ]);
                     }
                 }
-                if( settings('use_all_categories') )
-                {
+                if (settings('use_all_categories')) {
                     return redirect('/home');
                     /*return redirect()->route('frontend.game.list.category', [
                         'category1' => 'all',
@@ -1529,59 +1466,48 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     'parent' => 0,
                     'shop_id' => $shop_id
                 ])->orderBy('position')->first();
-                if( $category )
-                {
+                if ($category) {
                     $category1 = $category->href;
                     return redirect()->route('frontend.game.list.category', $category1);
                 }
             }
             \Illuminate\Support\Facades\Cookie::queue('currentCategory', $category1, 2678400);
-            if( $category1 != '' )
-            {
+            if ($category1 != '') {
                 $cat1 = \VanguardLTE\Category::where([
                     'href' => $category1,
                     'shop_id' => $shop_id
                 ])->first();
-                if( !$cat1 && $category1 != 'all' )
-                {
+                if (!$cat1 && $category1 != 'all') {
                     abort(404);
                 }
-                if( $category2 != '' )
-                {
+                if ($category2 != '') {
                     $cat2 = \VanguardLTE\Category::where([
                         'href' => $category2,
                         'parent' => $cat1->id,
                         'shop_id' => $shop_id
                     ])->first();
-                    if( !$cat2 )
-                    {
+                    if (!$cat2) {
                         abort(404);
                     }
                     $categories[] = $cat2->id;
-                }
-                else if( $category1 != 'all' )
-                {
+                } else if ($category1 != 'all') {
                     $categories = \VanguardLTE\Category::where([
                         'parent' => $cat1->id,
                         'shop_id' => $shop_id
                     ])->pluck('id')->toArray();
                     $categories[] = $cat1->id;
-                }
-                else
-                {
+                } else {
                     $categories = \VanguardLTE\Category::where([
                         'parent' => 0,
                         'shop_id' => $shop_id
                     ])->pluck('id')->toArray();
                 }
-                if( $frontend == 'Amatic' )
-                {
+                if ($frontend == 'Amatic') {
                     $Amatic = \VanguardLTE\Category::where([
                         'title' => 'Amatic',
                         'shop_id' => $shop_id
                     ])->first();
-                    if( $Amatic )
-                    {
+                    if ($Amatic) {
                         $categories = \VanguardLTE\Category::where([
                             'parent' => $Amatic->id,
                             'shop_id' => $shop_id
@@ -1589,14 +1515,12 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                         $categories[] = $Amatic->id;
                     }
                 }
-                if( $frontend == 'NetEnt' )
-                {
+                if ($frontend == 'NetEnt') {
                     $Amatic = \VanguardLTE\Category::where([
                         'title' => 'NetEnt',
                         'shop_id' => $shop_id
                     ])->first();
-                    if( $Amatic )
-                    {
+                    if ($Amatic) {
                         $categories = \VanguardLTE\Category::where([
                             'parent' => $Amatic->id,
                             'shop_id' => $shop_id
@@ -1605,36 +1529,32 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     }
                 }
                 $game_ids = \VanguardLTE\GameCategory::whereIn('category_id', $categories)->groupBy('game_id')->pluck('game_id')->toArray();
-                if( count($game_ids) > 0 )
-                {
+                if (count($game_ids) > 0) {
                     $games = $games->whereIn('id', $game_ids);
                     $newgames = $newgames->whereIn('games.id', $game_ids);
                     $hotgames = $hotgames->whereIn('games.id', $game_ids);
-                }
-                else
-                {
+                } else {
                     $games = $games->where('id', 0);
                     $newgames = $newgames->where('games.id', 0);
                     $hotgames = $hotgames->where('games.id', 0);
                 }
             }
 
-            if($newgames_count <= 20) {
+            if ($newgames_count <= 20) {
                 $newgames_loadmore = "nomore";
-            }else{
+            } else {
                 $newgames_loadmore = "more";
             }
 
-            if($hotgames_count <= 20) {
+            if ($hotgames_count <= 20) {
                 $hotgames_loadmore = "nomore";
-            }else{
+            } else {
                 $hotgames_loadmore = "more";
             }
 
             $detect = new \Detection\MobileDetect();
             $devices = [];
-            if( $detect->isMobile() || $detect->isTablet() )
-            {
+            if ($detect->isMobile() || $detect->isTablet()) {
                 $games = $games->whereIn('device', [
                     0,
                     2
@@ -1651,9 +1571,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     0,
                     2
                 ];
-            }
-            else
-            {
+            } else {
                 $games = $games->whereIn('device', [
                     1,
                     2
@@ -1671,29 +1589,29 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                     2
                 ];
             }
-            if($search_game){
-                if($category1 == 'hot'){
-                    $games = $games->where('name','like','%'.$search_game.'%')->where('games.hot_order', "!=", NULL)->orderBy('games.hot_order', 'ASC')->take(10)->get();
-                }else if($category1 == 'new'){
-                    $games = $games->where('name','like','%'.$search_game.'%')->where('games.new_order', "!=", NULL)->orderBy('games.new_order', 'ASC')->take(10)->get();
-                }else{
-                    $games = $games->where('name','like','%'.$search_game.'%')->orderBy('games.order', 'ASC')->take(10)->get();
+            if ($search_game) {
+                if ($category1 == 'hot') {
+                    $games = $games->where('name', 'like', '%' . $search_game . '%')->where('games.hot_order', "!=", NULL)->orderBy('games.hot_order', 'ASC')->take(10)->get();
+                } else if ($category1 == 'new') {
+                    $games = $games->where('name', 'like', '%' . $search_game . '%')->where('games.new_order', "!=", NULL)->orderBy('games.new_order', 'ASC')->take(10)->get();
+                } else {
+                    $games = $games->where('name', 'like', '%' . $search_game . '%')->orderBy('games.order', 'ASC')->take(10)->get();
                 }
-            }else{
-                if($category1 == 'hot'){
+            } else {
+                if ($category1 == 'hot') {
                     $games_count = $games->where('games.hot_order', "!=", NULL)->count();
                     $games = $games->where('games.hot_order', "!=", NULL)->orderBy('games.hot_order', 'ASC')->take(10)->get();
-                }else if($category1 == 'new'){
+                } else if ($category1 == 'new') {
                     $games_count = $games->where('games.new_order', "!=", NULL)->count();
                     $games = $games->where('games.new_order', "!=", NULL)->orderBy('games.new_order', 'ASC')->take(10)->get();
-                }else{
+                } else {
                     $games_count = $games->count();
                     $games = $games->orderBy('games.order', 'ASC')->take(10)->get();
                 }
 
-                if($games_count <= 20) {
+                if ($games_count <= 20) {
                     $games_loadmore = "nomore";
-                }else {
+                } else {
                     $games_loadmore = "more";
                 }
             }
@@ -1704,21 +1622,16 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             $categories = false;
             $currentSliderNum = -1;
             $currentListTitle = "";
-            if( $games )
-            {
+            if ($games) {
                 $cat_ids = \VanguardLTE\GameCategory::whereIn('game_id', \VanguardLTE\Game::where([
                     'view' => 1,
                     'shop_id' => $shop_id
                 ])->pluck('id'))->groupBy('category_id')->pluck('category_id');
-                if( count($cat_ids) )
-                {
-                    $categories = \VanguardLTE\Category::whereIn('id', $cat_ids)->orWhere('type', 1)->where('shop_id', $shop_id)->orderBy('position','ASC')->get();
-                    if( $category1 != '' )
-                    {
-                        foreach( $categories as $index => $cat )
-                        {
-                            if( $cat->href == $category1 )
-                            {
+                if (count($cat_ids)) {
+                    $categories = \VanguardLTE\Category::whereIn('id', $cat_ids)->orWhere('type', 1)->where('shop_id', $shop_id)->orderBy('position', 'ASC')->get();
+                    if ($category1 != '') {
+                        foreach ($categories as $index => $cat) {
+                            if ($cat->href == $category1) {
                                 $currentSliderNum = $cat->href;
                                 $currentListTitle = $cat->title;
                                 break;
@@ -1733,25 +1646,25 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             $cur_api_games = [];
             $apigames_count = \VanguardLTE\ApiGames::where('created_at', $cur_date)->count();
 
-            if( $apigames_count == 0) {
+            if ($apigames_count == 0) {
                 $game_gamehub_api = new \VanguardLTE\Lib\games_Api;
 
-                if($shop_id == 0){
+                if ($shop_id == 0) {
                     $games_gamehub = $game_gamehub_api->getGameList(['currency' => 'USD']);
-                }else{
+                } else {
                     $games_gamehub = $game_gamehub_api->getGameList(['currency' => $shop->currency]);
                 }
 
-			    if( $games_gamehub && $games_gamehub['error'] == 0 && count($games_gamehub['response']) > 0 ){
+                if ($games_gamehub && $games_gamehub['error'] == 0 && count($games_gamehub['response']) > 0) {
 
                     foreach ($games_gamehub['response'] as $key => $val) {
                         // $exist_game = \VanguardLTE\ApiGames::where('game_id', $val['id'])->first();
                         $exist_game = \VanguardLTE\ApiGames::where('game_id', (int)$val['id'])->first();
                         $api_label = '';
-                        if($val['new'] == 1){
+                        if ($val['new'] == 1) {
                             $api_label = 'new';
                         }
-                        if(!$exist_game){
+                        if (!$exist_game) {
                             $model = \VanguardLTE\ApiGames::create(
                                 [
                                     'game_id' => $val['id'],
@@ -1771,7 +1684,7 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                                     'order' => $val['position']
                                 ]
                             );
-                        }else {
+                        } else {
                             $exist_game->update(['created_at' => $cur_date, 'updated_at' => $cur_date]);
                         }
                     }
@@ -1779,88 +1692,88 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
             }
             $old_games = \VanguardLTE\ApiGames::where('created_at', '!=', $cur_date)->delete();
 
-            if( $detect->isMobile() || $detect->isTablet() ) {
-                if($category1 != 'all'){
-                    if($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology'){
-                        if($category1 == 'livecasino'){
+            if ($detect->isMobile() || $detect->isTablet()) {
+                if ($category1 != 'all') {
+                    if ($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology') {
+                        if ($category1 == 'livecasino') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'LIKE', '%live%casino%')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'jackpot') {
-                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%'.$category1.'%')->where('mobile', 1)->orderBy('order', 'ASC');
+                        } else if ($category1 == 'jackpot') {
+                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%' . $category1 . '%')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'table'){
+                        } else if ($category1 == 'table') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'table-games')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'hot'){
+                        } else if ($category1 == 'hot') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'hot')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'new'){
+                        } else if ($category1 == 'new') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'new')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'pragmatic'){
+                        } else if ($category1 == 'pragmatic') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('category', 'like', '%pragmatic%')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else {
+                        } else {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_ct_gaming')->where('mobile', 1)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
                         }
-                    }else {
-                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_'.$category1)->where('mobile', 1)->orderBy('order', 'ASC');
+                    } else {
+                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_' . $category1)->where('mobile', 1)->orderBy('order', 'ASC');
                         $apigames_count = $apigamesbycategory->count();
                         $api_games = $apigamesbycategory->take(10)->get();
                     }
-                }else {
+                } else {
                     $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('mobile', 1)->orderBy('order', 'ASC');
                     $apigames_count = $apigamesbycategory->count();
                     $api_games = $apigamesbycategory->take(10)->get();
                 }
                 $api_newgames = \VanguardLTE\ApiGames::where('label', 'new')->where('mobile', 1)->orderBy('order', 'ASC')->get();
                 $api_hotgames = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 1)->orderBy('order', 'ASC')->get();
-            }else {
-                if($category1 != 'all'){
-                    if($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology'){
-                        if($category1 == 'livecasino'){
+            } else {
+                if ($category1 != 'all') {
+                    if ($category1 == 'livecasino' || $category1 == 'jackpot' || $category1 == 'table' || strtolower($category1) == 'hot' || strtolower($category1) == 'new' || strtolower($category1) == 'pragmatic' || strtolower($category1) == 'casino-technology') {
+                        if ($category1 == 'livecasino') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'LIKE', '%live%casino%')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'jackpot') {
-                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%'.$category1.'%')->where('mobile', 0)->orderBy('order', 'ASC');
+                        } else if ($category1 == 'jackpot') {
+                            $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('name', 'LIKE', '%' . $category1 . '%')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'table'){
+                        } else if ($category1 == 'table') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('type', 'table-games')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'hot'){
+                        } else if ($category1 == 'hot') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'hot')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'new'){
+                        } else if ($category1 == 'new') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('label', 'new')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else if($category1 == 'pragmatic'){
+                        } else if ($category1 == 'pragmatic') {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('category', 'like', '%pragmatic%')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
-                        }else {
+                        } else {
                             $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_ct_gaming')->where('mobile', 0)->orderBy('order', 'ASC');
                             $apigames_count = $apigamesbycategory->count();
                             $api_games = $apigamesbycategory->take(10)->get();
                         }
-                    }else {
-                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_'.$category1)->where('mobile', 0)->orderBy('order', 'ASC');
+                    } else {
+                        $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('subcategory', '_' . $category1)->where('mobile', 0)->orderBy('order', 'ASC');
                         $apigames_count = $apigamesbycategory->count();
                         $api_games = $apigamesbycategory->take(10)->get();
                     }
-                }else {
+                } else {
                     $apigamesbycategory = \VanguardLTE\ApiGames::where('created_at', $cur_date)->where('mobile', 0)->orderBy('order', 'ASC');
                     $apigames_count = $apigamesbycategory->count();
                     $api_games = $apigamesbycategory->take(10)->get();
@@ -1869,32 +1782,29 @@ namespace VanguardLTE\Http\Controllers\Web\Frontend
                 $api_hotgames = \VanguardLTE\ApiGames::where('label', 'hot')->where('mobile', 0)->orderBy('order', 'ASC')->get();
             }
 
-            if($apigames_count <= 20){
+            if ($apigames_count <= 20) {
                 $apigames_loadmore = "nomore";
-            }else {
+            } else {
                 $apigames_loadmore = "more";
             }
             // if( settings('user_all_categories') && $category1 == 'all' )
-            if( $category1 == 'all' )
-            {
+            if ($category1 == 'all') {
                 $currentSliderNum = 'all';
                 $currentListTitle = 'All';
             }
 
-            $countrys =  \VanguardLTE\Country::orderBy('ranking','ASC')->get();
-            $currencys =  \VanguardLTE\Currency::orderBy('ranking','ASC')->get();
+            $countrys =  \VanguardLTE\Country::orderBy('ranking', 'ASC')->get();
+            $currencys =  \VanguardLTE\Currency::orderBy('ranking', 'ASC')->get();
             $realBalance = 0;
             $bonusBalance = 0;
-            return view('frontend.' . $frontend . '.games.list', compact('games', 'api_games', 'hotgames', 'newgames','category1', 'cat1', 'categories', 'currentSliderNum', 'currentListTitle','title', 'body', 'keywords', 'description', 'jpgs', 'devices', 'countrys', 'currencys','search_game','login_result','register_result','forgotpassword_result','resetpassword_result','games_loadmore', 'hotgames_loadmore', 'newgames_loadmore', 'apigames_loadmore', 'api_hotgames', 'api_newgames'));
+            return view('frontend.' . $frontend . '.games.list', compact('games', 'api_games', 'hotgames', 'newgames', 'category1', 'cat1', 'categories', 'currentSliderNum', 'currentListTitle', 'title', 'body', 'keywords', 'description', 'jpgs', 'devices', 'countrys', 'currencys', 'search_game', 'login_result', 'register_result', 'forgotpassword_result', 'resetpassword_result', 'games_loadmore', 'hotgames_loadmore', 'newgames_loadmore', 'apigames_loadmore', 'api_hotgames', 'api_newgames'));
         }
     }
-
 }
-namespace
-{
+
+namespace {
     function onkXppk3PRSZPackRnkDOJaZ9()
     {
         return 'OkBM2iHjbd6FHZjtvLpNHOc3lslbxTJP6cqXsMdE4evvckFTgS';
     }
-
 }
